@@ -119,8 +119,8 @@ _El frontend debe consumir toda la información desde la API, no acceso directo 
 ## Enviando el Resultado
 
 1. Asegúrate que tu código compile y ejecute correctamente
-2. Incluye instrucciones claras en los README
-3. Haz commit de todos los archivos necesarios
+2. Incluye instrucciones claras en los README por cada carpeta
+3. Haz commit de todos los archivos necesarios (Recuerda que debe ser en un repositorio público de tu propiedad)
 4. **Envía la URL de tu repositorio fork**
 
 Si necesitas más tiempo, háznoslo saber.
