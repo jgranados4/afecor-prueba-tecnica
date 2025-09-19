@@ -21,14 +21,13 @@ Para evitar problemas con archivos adjuntos, debes:
 
 **AFECOR** es una empresa que comercializa productos agroquímicos.
 
-Necesitan un sistema para **registrar pedidos** y calcular la **rentabilidad** de cada venta en tiempo real.
+Necesitan un sistema para **registrar pedidos** y calcular la **rentabilidad** de cada venta.
 
 ## Requerimientos Técnicos
 
 - **Frontend:** Angular 17+ (preferible 19-20)
 - **Backend:** .NET 8 Web API
 - **Base de datos:** SQL Server
-- **Tiempo:** 3 horas
 
 ## Funcionalidad Requerida
 
