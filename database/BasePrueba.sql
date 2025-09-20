@@ -1,8 +1,3 @@
-# Database
-
-<!-- Scripts SQL y instrucciones de base de datos -->
-
-```sql
 
 CREATE DATABASE AFECORDB;
 GO
@@ -46,7 +41,7 @@ CREATE TABLE PedidoDetalle (
     Cantidad INT NOT NULL,
     PrecioUnitario DECIMAL(18,2) NOT NULL, -- precio de venta en ese pedido
     Subtotal DECIMAL(18,2) NOT NULL,       -- Cantidad * PrecioUnitario
-    Rentabilidad DECIMAL(5,2) NOT NULL,    -- % de rentabilidad de la lï¿½nea
+    Rentabilidad DECIMAL(5,2) NOT NULL,    -- % de rentabilidad de la línea
     CONSTRAINT FK_PedidoDetalle_Pedidos FOREIGN KEY (PedidoID) REFERENCES Pedidos(PedidoID),
     CONSTRAINT FK_PedidoDetalle_Productos FOREIGN KEY (ProductoID) REFERENCES Productos(ProductoID)
 );
@@ -59,9 +54,9 @@ GO
 INSERT INTO Clientes (Nombre, Direccion, Telefono, Email) VALUES
 ('Agroindustrias Sierra Verde', 'Av. Principal 123, Quito', '0991234567', 'contacto@sierraverde.com'),
 ('Cooperativa Agropecuaria El Campo', 'Calle 45 #67, Guayaquil', '0987654321', 'ventas@elcampo.ec'),
-('Distribuidora Los Rï¿½os', 'Km 10 Vï¿½a Quevedo', '0974567890', 'info@losrios.com');
+('Distribuidora Los Ríos', 'Km 10 Vía Quevedo', '0974567890', 'info@losrios.com');
 
--- Productos (Agroquï¿½micos)
+-- Productos (Agroquímicos)
 INSERT INTO Productos (Nombre, Costo, PrecioVenta) VALUES
 ('Herbicida Glifosato 1L', 5.00, 8.50),
 ('Fungicida Mancozeb 1Kg', 7.00, 12.00),
