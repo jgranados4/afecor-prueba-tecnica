@@ -1,0 +1,29 @@
+.filtros-row {
+  display: flex;
+  gap: 5px;
+}
+
+.estado-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px; // espacio entre círculo y texto
+}
+
+.estado-circulo {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.rentabilidad-alta {
+  background-color: #4caf50; // verde 🟢
+}
+
+.rentabilidad-media {
+  background-color: #ffc107; // amarillo 🟡
+}
+
+.rentabilidad-baja {
+  background-color: #f44336; // rojo 🔴
+}

@@ -1,0 +1,236 @@
+<div class="pedido-form-container">
+  <!-- Header -->
+  <mat-toolbar class="form-header">
+    <button mat-icon-button (click)="onVolver()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <span class="title">{{
+      isEditMode() ? "Editar Pedido" : "Nuevo Pedido"
+    }}</span>
+    <span class="spacer"></span>
+    <div
+      class="header-stats"
+      [class.rentabilidad-visible]="totalRentabilidad() > 0"
+    >
+      <span class="total-amount"
+        >Total:
+        {{ totalPedido() | currency : "USD" : "symbol" : "1.2-2" }}</span
+      >
+      <span class="rentabilidad-badge" [ngClass]="getRentabilidadGlobalClass()">
+        Rentabilidad: {{ totalRentabilidad().toFixed(2) }}%
+      </span>
+    </div>
+  </mat-toolbar>
+
+  <form [formGroup]="pedidoForm" (ngSubmit)="onSubmit()" class="form-content">
+    <!-- Sección Cabecera del Pedido -->
+    <mat-card class="cabecera-card">
+      <mat-card-header>
+        <mat-card-title>Información del Pedido</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="cabecera-row">
+          <!-- Selector de Cliente -->
+          <mat-form-field appearance="outline" class="cliente-field">
+            <mat-label>Cliente</mat-label>
+            <mat-select
+              formControlName="clienteId"
+              (selectionChange)="onClienteChange($event.value)"
+            >
+              <mat-option value="">Seleccionar cliente</mat-option>
+              @for (cliente of clientes() ; track cliente.clienteId) {
+              <mat-option [value]="cliente.clienteId">{{
+                cliente.nombre
+              }}</mat-option>
+              }
+            </mat-select>
+            <mat-error>Cliente es requerido</mat-error>
+          </mat-form-field>
+
+          <!-- Fecha del Pedido -->
+          <mat-form-field appearance="outline" class="fecha-field">
+            <mat-label>Fecha del Pedido</mat-label>
+            <input
+              matInput
+              [matDatepicker]="fechaPicker"
+              formControlName="fechaPedido"
+              (dateChange)="onFechaChange($event.value)"
+            />
+            <mat-datepicker-toggle
+              matIconSuffix
+              [for]="fechaPicker"
+            ></mat-datepicker-toggle>
+            <mat-datepicker #fechaPicker></mat-datepicker>
+            <mat-error>Fecha es requerida</mat-error>
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Sección Detalle de Productos -->
+    <mat-card class="detalles-card">
+      <mat-card-header>
+        <mat-card-title>Productos del Pedido</mat-card-title>
+        <div class="card-actions">
+          <button
+            type="button"
+            mat-raised-button
+            color="primary"
+            (click)="agregarDetalle()"
+            [disabled]="!pedidoForm.get('clienteId')?.value"
+          >
+            <mat-icon>add</mat-icon>
+            Agregar Producto
+          </button>
+        </div>
+      </mat-card-header>
+      <mat-card-content>
+        @if (detallesArray().length === 0) {
+        <div class="no-productos">
+          <mat-icon>shopping_cart</mat-icon>
+          <p>No hay productos agregados</p>
+          <small>Selecciona un cliente y comienza a agregar productos</small>
+        </div>
+        } @else {
+        <!-- Formulario Dinámico de Productos -->
+        <div formArrayName="detalles" class="productos-form-container">
+          @for (detalle of detallesArray(); track $index) {
+          <div [formGroupName]="$index" class="producto-form-row">
+            <!-- Selector de Producto -->
+            <mat-form-field appearance="outline" class="producto-select">
+              <mat-label>Producto</mat-label>
+              <mat-select
+                formControlName="productoId"
+                (selectionChange)="onProductoChange($index, $event.value)"
+              >
+                <mat-option value="">Seleccionar producto</mat-option>
+                @for (producto of productos(); track producto.productoId) {
+                <mat-option [value]="producto.productoId">
+                  {{ producto.nombre }} -
+                  {{
+                    producto.precioVenta | currency : "USD" : "symbol" : "1.2-2"
+                  }}
+                </mat-option>
+                }
+              </mat-select>
+              <mat-error>Producto es requerido</mat-error>
+            </mat-form-field>
+
+            <!-- Campo Cantidad -->
+            <mat-form-field appearance="outline" class="cantidad-field">
+              <mat-label>Cantidad</mat-label>
+              <input
+                matInput
+                type="number"
+                min="1"
+                formControlName="cantidad"
+                (input)="onCantidadChange($index, $event.target.value)"
+              />
+              <mat-error>Cantidad es requerida</mat-error>
+            </mat-form-field>
+
+            <!-- Campo Precio Unitario -->
+            <mat-form-field appearance="outline" class="precio-field">
+              <mat-label>Precio Unit.</mat-label>
+              <input
+                matInput
+                type="number"
+                step="0.01"
+                min="0"
+                formControlName="precioUnitario"
+                (input)="onPrecioChange($index, $event.target.value)"
+              />
+              <mat-error>Precio es requerido</mat-error>
+            </mat-form-field>
+
+            <!-- Subtotal -->
+            <div class="subtotal-display">
+              <span class="label">Subtotal:</span>
+              <span class="value">
+                {{
+                  calcularSubtotal($index)
+                    | currency : "USD" : "symbol" : "1.2-2"
+                }}
+              </span>
+            </div>
+
+            <!-- Rentabilidad -->
+            <div class="rentabilidad-display">
+              <span class="label">Rentabilidad:</span>
+              <span
+                class="value"
+                [ngClass]="getRentabilidadClass(calcularRentabilidad($index))"
+              >
+                {{ calcularRentabilidad($index).toFixed(2) }}%
+              </span>
+            </div>
+
+            <!-- Botón Eliminar -->
+            <button
+              type="button"
+              mat-icon-button
+              color="warn"
+              (click)="eliminarDetalle($index)"
+              matTooltip="Eliminar producto"
+              class="eliminar-btn"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+          }
+        </div>
+
+        <!-- Resumen Total -->
+        <div class="resumen-total">
+          <mat-divider></mat-divider>
+          <div class="totales-row">
+            <div class="total-item">
+              <span class="label">Items:</span>
+              <span class="value">{{ totalItems() }}</span>
+            </div>
+            <div class="total-item">
+              <span class="label">Total:</span>
+              <span class="value total-amount">{{
+                totalPedido() | currency : "USD" : "symbol" : "1.2-2"
+              }}</span>
+            </div>
+            <div class="total-item">
+              <span class="label">Rentabilidad Global:</span>
+              <span
+                class="value rentabilidad-global"
+                [ngClass]="getRentabilidadGlobalClass()"
+              >
+                {{ totalRentabilidad().toFixed(2) }}%
+              </span>
+            </div>
+          </div>
+        </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Acciones del Formulario -->
+    <div class="form-actions">
+      <button
+        type="button"
+        mat-stroked-button
+        class="cancelar-btn"
+        [mat-dialog-close]
+      >
+        <mat-icon>cancel</mat-icon>
+        Cancelar
+      </button>
+
+      <button
+        type="submit"
+        mat-raised-button
+        color="primary"
+        [disabled]="!pedidoForm.valid || detallesArray().length === 0"
+        class="guardar-btn"
+      >
+        <mat-icon>save</mat-icon>
+        {{ isEditMode() ? "Actualizar" : "Guardar" }} Pedido
+      </button>
+    </div>
+  </form>
+</div>

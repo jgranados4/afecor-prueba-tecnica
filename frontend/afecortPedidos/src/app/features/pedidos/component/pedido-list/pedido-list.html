@@ -1,0 +1,204 @@
+<!-- pedido-list.html -->
+<div class="pedidos-container">
+  <!-- Header con título y botón nuevo -->
+  <mat-toolbar class="header-toolbar">
+    <span class="title">Lista de Pedidos</span>
+    <div class="header-stats">
+      <span class="stat-item">Total: {{ totalPedidos() }}</span>
+      <span class="stat-item"
+        >Monto: {{ totalMonto() | currency : "USD" : "symbol" : "1.2-2" }}</span
+      >
+      <span class="stat-item">Rentabilidad: {{ rentabilidadPromedio() }}%</span>
+    </div>
+    <button
+      mat-raised-button
+      color="primary"
+      class="nuevo-btn"
+      (click)="onNuevoPedido()"
+    >
+      <mat-icon>add</mat-icon>
+      Nuevo Pedido
+    </button>
+  </mat-toolbar>
+
+  <!-- Filtros -->
+  <mat-card class="filtros-card">
+    <mat-card-content>
+      <div class="filtros-row">
+        <mat-form-field appearance="outline" class="filtro-cliente">
+          <mat-label>Buscar Cliente</mat-label>
+          <input
+            matInput
+            [value]="filtroCliente()"
+            (input)="onFiltroClienteChange($event.target?.value || '')"
+            placeholder="Nombre del cliente"
+          />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filtro-fecha">
+          <mat-label>Fecha desde</mat-label>
+          <input
+            matInput
+            [matDatepicker]="fechaDesde"
+            [value]="filtroFechaDesde()"
+            (dateChange)="onFiltroFechaDesdeChange($event.value)"
+          />
+          <mat-datepicker-toggle
+            matIconSuffix
+            [for]="fechaDesde"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #fechaDesde></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filtro-fecha">
+          <mat-label>Fecha hasta</mat-label>
+          <input
+            matInput
+            [matDatepicker]="fechaHasta"
+            [value]="filtroFechaHasta()"
+            (dateChange)="onFiltroFechaHastaChange($event.value)"
+          />
+          <mat-datepicker-toggle
+            matIconSuffix
+            [for]="fechaHasta"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #fechaHasta></mat-datepicker>
+        </mat-form-field>
+
+        <button
+          mat-stroked-button
+          (click)="limpiarFiltros()"
+          class="limpiar-btn"
+        >
+          <mat-icon>clear</mat-icon>
+          Limpiar
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Tabla de pedidos -->
+  <mat-card class="tabla-card">
+    @if (pedidos.ObtenerPedidos.hasValue()) {
+    <mat-table [dataSource]="dataSource()" class="pedidos-table">
+      <!-- Columna ID -->
+      <ng-container matColumnDef="id">
+        <mat-header-cell *matHeaderCellDef>ID</mat-header-cell>
+        <mat-cell *matCellDef="let pedido">{{ pedido.id }}</mat-cell>
+      </ng-container>
+
+      <!-- Columna Cliente -->
+      <ng-container matColumnDef="clienteNombre">
+        <mat-header-cell *matHeaderCellDef>Cliente</mat-header-cell>
+        <mat-cell *matCellDef="let pedido">{{ pedido.clienteNombre }}</mat-cell>
+      </ng-container>
+
+      <!-- Columna Fecha -->
+      <ng-container matColumnDef="fechaPedido">
+        <mat-header-cell *matHeaderCellDef>Fecha</mat-header-cell>
+        <mat-cell *matCellDef="let pedido">{{
+          pedido.fechaPedido | date : "dd/MM/yyyy"
+        }}</mat-cell>
+      </ng-container>
+
+      <!-- Columna Total -->
+      <ng-container matColumnDef="total">
+        <mat-header-cell *matHeaderCellDef>Total</mat-header-cell>
+        <mat-cell *matCellDef="let pedido">{{
+          pedido.total | currency : "USD" : "symbol" : "1.2-2"
+        }}</mat-cell>
+      </ng-container>
+
+      <!-- Columna Rentabilidad -->
+      <ng-container matColumnDef="rentabilidadPromedio">
+        <mat-header-cell *matHeaderCellDef>Rentabilidad</mat-header-cell>
+        <mat-cell *matCellDef="let pedido">
+          <span class="rentabilidad-badge">
+            {{ pedido.rentabilidadPromedio }}%
+          </span>
+        </mat-cell>
+      </ng-container>
+
+      <!-- Columna Estado -->
+      <ng-container matColumnDef="estado">
+        <mat-header-cell *matHeaderCellDef>Estado</mat-header-cell>
+        <mat-cell *matCellDef="let pedido">
+          <div class="estado-wrapper">
+            <span
+              class="estado-circulo"
+              [ngClass]="getRentabilidadClass(pedido.rentabilidadPromedio)"
+            ></span>
+            <span>{{ pedido.estado | titlecase }}</span>
+          </div>
+        </mat-cell>
+      </ng-container>
+
+      <!-- Columna Productos -->
+      <ng-container matColumnDef="productos">
+        <mat-header-cell *matHeaderCellDef>Productos</mat-header-cell>
+        <mat-cell *matCellDef="let pedido">
+          <div class="productos-summary">
+            @for (detalle of pedido.detalles.slice(0, 2); track
+            detalle.productoNombre) {
+            <span class="producto-item">{{ detalle.productoNombre }}</span>
+            } @if (pedido.detalles.length > 2) {
+            <span class="mas-productos"
+              >+{{ pedido.detalles.length - 2 }} más</span
+            >
+            }
+          </div>
+        </mat-cell>
+      </ng-container>
+
+      <!-- Columna Acciones -->
+      <ng-container matColumnDef="acciones">
+        <mat-header-cell *matHeaderCellDef>Acciones</mat-header-cell>
+        <mat-cell *matCellDef="let pedido">
+          <div class="acciones-container">
+            <button
+              mat-icon-button
+              color="primary"
+              matTooltip="Editar"
+              (click)="onEditarPedido(pedido)"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+
+            <button
+              mat-icon-button
+              color="warn"
+              matTooltip="Eliminar"
+              (click)="onEliminarPedido(pedido)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        class="pedido-row"
+      ></mat-row>
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" colspan="4">No hay dato</td>
+      </tr>
+    </mat-table>
+    } @else if (pedidos.ObtenerPedidos.isLoading()) {
+    <h3>cargando Pedidos</h3>
+
+    }
+
+    <!-- Paginador -->
+    @if (pedidosFiltrados().length > 0) {
+    <mat-paginator
+      [pageSizeOptions]="[5, 10, 20, 50]"
+      [showFirstLastButtons]="true"
+      [length]="pedidosFiltrados().length"
+    >
+    </mat-paginator>
+    }
+  </mat-card>
+</div>
