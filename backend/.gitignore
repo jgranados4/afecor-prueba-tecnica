@@ -1,0 +1,54 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build Folders
+bin/
+obj/
+
+# Rider
+.idea/
+
+# NuGet
+*.nupkg
+# The packages folder can be ignored because of Package Restore
+**/packages/*
+!**/packages/build/
+!**/packages/repositories.config
+
+# Dotnet Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# Logs
+*.log
+
+# Resharper
+_ReSharper*/
+*.DotSettings.user
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Mac
+.DS_Store
+
+# Others
+*.dbmdl
+*.bak
+*.backup
